@@ -60,3 +60,7 @@ crashlytics-build.properties
 
 # VS Code
 .vsconfig
+.vscode
+
+# Draw IO
+*.drawio
