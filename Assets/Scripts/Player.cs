@@ -11,7 +11,7 @@ public class Player : MonoBehaviour {
 
     private const float WALK_SPEED = 7.0f;
     private const float RUN_SPEED = 11.0f;
-    private const float ACCELERATION = 12.0f;
+    private const float ACCELERATION = 20.0f;
     private const float JUMP_FORCE = 6.0f;
 
     [SerializeField] private Camera mainCamera;
@@ -55,7 +55,7 @@ public class Player : MonoBehaviour {
     private bool isRunning = false;
     private bool isGrounded = false;
     private bool isJumping = false;
-    private bool canAttack = false;
+    private bool canAttack = true;
     private bool isAttacking = false;
     private bool blastRuneCollected = false;
     private bool barrierRuneCollected = false;
@@ -168,6 +168,7 @@ public class Player : MonoBehaviour {
     // Read attack input to determine which attack or ability the player is using
     public void OnBasicAttack(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started) {
+            Debug.Log("attack input");
             isAttacking = true;
             currentAbility = AbilityType.Basic;
         }
@@ -328,39 +329,30 @@ public class Player : MonoBehaviour {
         }
 
         if (currentAbility == AbilityType.Basic) {
-            StartCoroutine(TimerCoroutine(1.2f));
-            animator.SetTrigger("BasicAttack");
-            if (basicAttackSfx != null) {
-                audioSource.PlayOneShot(basicAttackSfx);
-            }
-            else {
-                Debug.LogWarning("Warning! " + name + ": is missing basicAttackSfx.");
-            }
+            UseAttack(1.2f, "BasicAttack", basicAttackSfx);
         }
 
         if (currentAbility == AbilityType.Blast && blastRuneCollected) {
-            StartCoroutine(TimerCoroutine(1.0f));
-            animator.SetTrigger("BlastAbility");
-            if (blastAbilitySfx != null) {
-                audioSource.PlayOneShot(blastAbilitySfx);
-            }
-            else {
-                Debug.LogWarning("Warning! " + name + ": is missing blastAbilitySfx.");
-            }
+            UseAttack(1.0f, "BlastAbility", blastAbilitySfx);
         }
 
         if (currentAbility == AbilityType.Barrier && barrierRuneCollected) {
-            StartCoroutine(TimerCoroutine(1.0f));
-            animator.SetTrigger("BarrierAbility");
-            if (barrierAbilitySfx != null) {
-                audioSource.PlayOneShot(barrierAbilitySfx);
-            }
-            else {
-                Debug.LogWarning("Warning! " + name + ": is missing barrierAbilitySfx.");
-            }
+            UseAttack(1.0f, "BarrierAbility", barrierAbilitySfx);
         }
+    }
 
+    private void UseAttack(float attackTimer, string animation, AudioClip sfx) {
         canAttack = false;
+
+        StartCoroutine(TimerCoroutine(attackTimer));
+        animator.SetTrigger(animation);
+
+        if (sfx != null) {
+            audioSource.PlayOneShot(sfx);
+        }
+        else {
+            Debug.LogWarning("Warning! " + name + ": is missing " + animation + " sfx.");
+        }
     }
 
     private void HealthCheck() {
