@@ -1,97 +1,161 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Player : MonoBehaviour {
 
+
+    #region Fields
     private const int MAX_HP = 5;
 
     private const float WALK_SPEED = 7.0f;
     private const float RUN_SPEED = 11.0f;
-    private const float ACCELERATION = 14.0f;
-    private const float GROUND_DRAG = 5.0f;
+    private const float ACCELERATION = 12.0f;
     private const float JUMP_FORCE = 6.0f;
-    private const float BARRIER_TIMER = 1.0f;
 
-    [SerializeField] private CapsuleCollider hurtbox; // detects incoming combat collisions
-    [SerializeField] private CapsuleCollider hitbox;  // detects outgoing combat collisions
+    [SerializeField] private Camera mainCamera;
 
-    [SerializeField] private Camera followCamera;
-    [SerializeField] private Transform playerTransform;
-    [SerializeField] private Transform orientation;
+    [SerializeField] private Transform cameraTarget;
+
+    [SerializeField] private AudioClip walkSfx;
+    [SerializeField] private AudioClip runSfx;
+    [SerializeField] private AudioClip jumpSfx;
+    [SerializeField] private AudioClip landSfx;
+    [SerializeField] private AudioClip basicAttackSfx;
+    [SerializeField] private AudioClip blastAbilitySfx;
+    [SerializeField] private AudioClip barrierAbilitySfx;
+    [SerializeField] private AudioClip hurtSfx;
+    [SerializeField] private AudioClip deathSfx;
+
+    private AudioSource audioSource;
 
     private Rigidbody rb;
 
+    private CapsuleCollider hurtbox; // detects incoming combat collisions
+    [SerializeField] private CapsuleCollider hitbox;  // detects outgoing combat collisions
+
+    private Animator animator;
+
     private Vector3 movementDirection;
+    private Vector3 lookDirection;
 
     private int currentHp = MAX_HP;
 
-    private float cameraRotationSpeed = 7.0f;
+    private float followCameraYaw = 0f;
+    private float followCameraPitch = 0f;
+    private float verticalMinClamp = -45f;
+    private float verticalMaxClamp = 60f;
+    private float cameraSensitivity = 0.1f;
+    private float cameraTargetDirection = 0f;
+    private float rotationVelocity = 0f;
+    private float smoothTime = 0.1f;
 
-    private bool isPaused = false;
     private bool isDead = false;
-
-    // private bool isWalking;
-    // private bool isRunning;
+    private bool isRunning = false;
     private bool isGrounded = false;
     private bool isJumping = false;
-
     private bool canAttack = false;
     private bool isAttacking = false;
+    private bool blastRuneCollected = false;
+    private bool barrierRuneCollected = false;
 
-    private bool blastRuneCollected;
-    private bool smashRuneCollected;
-    private bool barrierRuneCollected;
-
-    // move to game manager
-    // private int totalArtifactsCollected;
-    // private int currentLevelArtifactsCollected;
-    // private int totalManaCrystalsCollected;
-    // private int currentLevelManaCrystalsCollected;
-
-    private enum AbilityTypes {
-        Basic, Blast, Smash, Barrier
+    private enum AbilityType {
+        None, Basic, Blast, Barrier
     }
-    private AbilityTypes abilityType;
+    private AbilityType currentAbility;
+    #endregion
 
-    // Start is called before the first frame update
-    void Start() {
+    #region UnityMethods
+    private void Start() {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         if (rb == null) {
-            throw new System.Exception(name + " does not have Rigidbody!");
+            throw new System.Exception("Error! " + name + ": missing Rigidbody.");
+        }
+
+        animator = GetComponent<Animator>();
+        if (animator == null) {
+            throw new System.Exception("Error! " + name + ": missing Animator.");
+        }
+
+        hurtbox = GetComponent<CapsuleCollider>();
+        if (hurtbox == null) {
+            throw new System.Exception("Error! " + name + ": missing CapsuleCollider.");
+        }
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) {
+            throw new System.Exception("Error! " + name + ": missing AudioSource.");
+        }
+
+        if (mainCamera == null) {
+            throw new System.Exception("Error! " + name + ": missing MainCamera.");
+        }
+
+        animator.SetInteger("Health", currentHp);
+    }
+
+    private void Update() {
+        if (!GameManager.isPaused) {
+            HealthCheck();
+
+            // Animator parameters
+            animator.SetFloat("Speed", new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude);
+            animator.SetFloat("UpVelocity", rb.velocity.y);
+        }
+        if (isDead) {
+            if (deathSfx != null) {
+                audioSource.PlayOneShot(deathSfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": is missing deathSfx.");
+            }
+            // GameManager.RespawnPlayer();
         }
     }
 
-    // Update is called once per frame
-    void Update() {
-        if (!isPaused) {
+    private void FixedUpdate() {
+        if (!GameManager.isPaused && !isDead) {
             MoveCallback();
             if (isJumping) {
+                GroundCheck();
                 JumpCallback();
             }
             if (isAttacking) {
-                AttackCallback();
+                AttackCallback(currentAbility);
             }
         }
+    }
 
-        Debug.DrawRay(transform.position, transform.forward * 15, Color.red);
-        Debug.DrawRay(playerTransform.transform.position, playerTransform.transform.forward * 10, Color.green);
-        Debug.DrawRay(rb.position, movementDirection * 5, Color.blue);
+    private void LateUpdate() {
+        RotateCamera();
+    }
+    #endregion
+
+    #region InputMethods
+    // Read mouse input for camera direction
+    public void OnLook(InputAction.CallbackContext c) {
+        lookDirection = c.ReadValue<Vector2>();
     }
 
     // Read movement input to get the direction the player is trying to move in
     public void OnMove(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started || c.phase == InputActionPhase.Performed) {
             Vector2 input = c.ReadValue<Vector2>();
-            movementDirection = new Vector3(input.x, 0, input.y) + transform.forward;
+            movementDirection = new Vector3(input.x, 0, input.y);
         }
         if (c.phase == InputActionPhase.Canceled) {
             movementDirection = Vector3.zero;
         }
     }
 
-    // Read jump input to determine if the player is attempting to jump
+    // Read mapping input to check if the player is sprinting
+    public void OnSprint(InputAction.CallbackContext c) {
+        isRunning = c.ReadValueAsButton();
+    }
+
+    // Read mapping input to check if the player is jumping
     public void OnJump(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started) {
             isJumping = true;
@@ -101,15 +165,61 @@ public class Player : MonoBehaviour {
         }
     }
 
-    public void OnAttack(InputAction.CallbackContext c) {
-        // get key input
-        // call AttackCallback
+    // Read attack input to determine which attack or ability the player is using
+    public void OnBasicAttack(InputAction.CallbackContext c) {
+        if (c.phase == InputActionPhase.Started) {
+            isAttacking = true;
+            currentAbility = AbilityType.Basic;
+        }
+        else if (c.phase == InputActionPhase.Canceled) {
+            isAttacking = false;
+            currentAbility = AbilityType.None;
+        }
     }
 
+    public void OnBlastAbility(InputAction.CallbackContext c) {
+        if (c.phase == InputActionPhase.Started) {
+            isAttacking = true;
+            currentAbility = AbilityType.Blast;
+        }
+        else if (c.phase == InputActionPhase.Canceled) {
+            isAttacking = false;
+            currentAbility = AbilityType.None;
+        }
+    }
+
+    public void OnBarrierAbility(InputAction.CallbackContext c) {
+        if (c.phase == InputActionPhase.Started) {
+            isAttacking = true;
+            currentAbility = AbilityType.Barrier;
+        }
+        else if (c.phase == InputActionPhase.Canceled) {
+            isAttacking = false;
+            currentAbility = AbilityType.None;
+        }
+    }
+    #endregion
+
+    #region MovementMethods
     // Use velocity and acceleration to move the player in a direction
     private void MoveCallback() {
+        // set speed based on movement input
+        float moveSpeed = isRunning ? RUN_SPEED : WALK_SPEED;
+        if (movementDirection == Vector3.zero) {
+            moveSpeed = 0f;
+        }
+
+        // rotate player to match movement
+        if (movementDirection != Vector3.zero) {
+            cameraTargetDirection = Mathf.Atan2(movementDirection.x, movementDirection.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraTargetDirection, ref rotationVelocity, smoothTime);
+            transform.rotation = Quaternion.Euler(0f, rotation, 0f);
+        }
+
+        // move player with acceleration
+        Vector3 direction = Quaternion.Euler(0f, cameraTargetDirection, 0f) * Vector3.forward;
         Vector3 currentVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-        Vector3 newVelocity = movementDirection * WALK_SPEED;
+        Vector3 newVelocity = direction * moveSpeed;
         Vector3 deltaVelocity = newVelocity - currentVelocity;
 
         if (newVelocity.magnitude < 0.1f && currentVelocity.magnitude < 0.1f) {
@@ -118,57 +228,158 @@ public class Player : MonoBehaviour {
         else {
             rb.velocity += deltaVelocity.normalized * ACCELERATION * Time.deltaTime;
 
+            // prevent going over move speed when going in diagonal directions
             float currentSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-            if (currentSpeed > WALK_SPEED) {
-                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z).normalized * WALK_SPEED + new Vector3(0, rb.velocity.y, 0);
+            if (currentSpeed > moveSpeed) {
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z).normalized * moveSpeed + new Vector3(0, rb.velocity.y, 0);
             }
 
-            Vector3 lookDirection = transform.position - new Vector3(followCamera.transform.position.x, transform.position.y, followCamera.transform.position.z);
-            orientation.forward = lookDirection.normalized;
-
-            Vector3 inputDirection = orientation.forward * movementDirection.z + orientation.right * movementDirection.x;
-            inputDirection = inputDirection.normalized;
-
-            if (inputDirection != Vector3.zero) {
-                rb.transform.forward = inputDirection;
-                playerTransform.forward = Vector3.Slerp(playerTransform.forward, inputDirection, Time.deltaTime * cameraRotationSpeed);
+            // play walk or run audio
+            if (isRunning) {
+                if (runSfx != null) {
+                    audioSource.PlayOneShot(runSfx);
+                }
+                else {
+                    Debug.LogWarning("Warning! " + name + ": is missing runSfx.");
+                }
+            }
+            else {
+                if (walkSfx != null) {
+                    audioSource.PlayOneShot(walkSfx);
+                }
+                else {
+                    Debug.LogWarning("Warning! " + name + ": is missing walkSfx.");
+                }
             }
         }
+    }
 
-        
+    // Use look direction to rotate player's camera
+    private void RotateCamera() {
+        // get direction for player camera
+        if (lookDirection.sqrMagnitude >= 0.01f) {
+            followCameraYaw += lookDirection.x * cameraSensitivity;
+            followCameraPitch -= lookDirection.y * cameraSensitivity;
+        }
+
+        // clamp rotations to values between 0 and 360 degrees
+        followCameraYaw = ClampAngle(followCameraYaw, float.MinValue, float.MaxValue);
+        followCameraPitch = ClampAngle(followCameraPitch, verticalMinClamp, verticalMaxClamp);
+
+        // rotate camera in desired direction
+        cameraTarget.transform.rotation = Quaternion.Euler(followCameraPitch, followCameraYaw, 0);
+    }
+
+    // Clamp angles to between 0 and 360 degrees
+    private float ClampAngle(float angle, float min, float max) {
+        if (angle < -360f) {
+            angle += 360f;
+        }
+        if (angle > 360f) {
+            angle -= 360f;
+        }
+        return Mathf.Clamp(angle, min, max);
     }
 
     // Check if the player is grounded and jump if they are
     private void JumpCallback() {
+        if (isGrounded) {
+            rb.velocity += new Vector3(0, JUMP_FORCE, 0);
+            isGrounded = false;
+
+            animator.SetTrigger("Jump");
+
+            if (jumpSfx != null) {
+                audioSource.PlayOneShot(jumpSfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": is missing jumpSfx.");
+            }
+        }
+    }
+
+    // Cast a ray downwards to check if the player is close to the ground
+    private void GroundCheck() {
         if (!isGrounded && rb.velocity.y <= 0) {
+            Vector3 origin = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
+            Vector3 direction = transform.up * -1;
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, transform.up * -1, out hit)) {
-                // test and adjust distance
-                if (hit.distance < 1.1) {
+            if (Physics.Raycast(origin, direction, out hit)) {
+                if (hit.distance < 1) {
                     isGrounded = true;
                 }
             }
         }
+    }
+    #endregion
 
-        if (isGrounded) {
-            rb.velocity += new Vector3(0, JUMP_FORCE, 0);
-            isGrounded = false;
+    #region CombatMethods
+    // Attack timer to prevent attacking again instantly
+    private IEnumerator TimerCoroutine(float duration) {
+        yield return new WaitForSeconds(duration);
+        canAttack = true;
+    }
+
+    // Activate an attack or ability based on the active ability
+    private void AttackCallback(AbilityType ability) {
+        // do nothing if the player cannot attack
+        if (!canAttack || currentAbility == AbilityType.None) {
+            return;
+        }
+
+        if (currentAbility == AbilityType.Basic) {
+            StartCoroutine(TimerCoroutine(1.2f));
+            animator.SetTrigger("BasicAttack");
+            if (basicAttackSfx != null) {
+                audioSource.PlayOneShot(basicAttackSfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": is missing basicAttackSfx.");
+            }
+        }
+
+        if (currentAbility == AbilityType.Blast && blastRuneCollected) {
+            StartCoroutine(TimerCoroutine(1.0f));
+            animator.SetTrigger("BlastAbility");
+            if (blastAbilitySfx != null) {
+                audioSource.PlayOneShot(blastAbilitySfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": is missing blastAbilitySfx.");
+            }
+        }
+
+        if (currentAbility == AbilityType.Barrier && barrierRuneCollected) {
+            StartCoroutine(TimerCoroutine(1.0f));
+            animator.SetTrigger("BarrierAbility");
+            if (barrierAbilitySfx != null) {
+                audioSource.PlayOneShot(barrierAbilitySfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": is missing barrierAbilitySfx.");
+            }
+        }
+
+        canAttack = false;
+    }
+
+    private void HealthCheck() {
+        if (currentHp > 0) {
+            isDead = false;
+        }
+        else {
+            isDead = true;
         }
     }
+    #endregion
 
-    private void AttackCallback() {
-        // implement attacking
-    }
-
+    #region CollisionMethods
     private void OnCollisionEnter(Collision collision) {
-        // check if player hurtbox collides with item
         // check if player hurtbox collides with enemy
-        if (collision.gameObject.CompareTag("Item")) {
-            ItemCollisionCallback(collision.gameObject);
-        }
-        if (collision.gameObject.CompareTag("Enemy")) {
-            EnemyCollisionCallback(collision.gameObject);
-        }
+
+        //if (collision.gameObject.CompareTag("Enemy")) {
+        //    EnemyCollisionCallback(collision.gameObject);
+        //}
     }
 
     private void ItemCollisionCallback(GameObject item) {
@@ -183,9 +394,7 @@ public class Player : MonoBehaviour {
         // if (item.name == "BlastRune") {
         //   GameManager.CollectBlastRune(item);
         // }
-        // if (item.name == "SmashRune") {
-        //   GameManager.CollectBlastRune(item);
-        // }
+
         // if (item.name == "BarrierRune") {
         //   GameManager.CollectBlastRune(item);
         // }
@@ -195,6 +404,8 @@ public class Player : MonoBehaviour {
 
     private void EnemyCollisionCallback(GameObject enemy) {
         // kill enemy
+
         // enemy.die();
     }
+    #endregion
 }
