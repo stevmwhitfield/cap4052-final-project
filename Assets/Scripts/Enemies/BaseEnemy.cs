@@ -4,26 +4,24 @@ using UnityEngine.AI;
 public class BaseEnemy : MonoBehaviour {
 
     #region Fields
-    //private const float SPEED = 4.0f;
-    //private const float ACCELERATION = 36.0f;
-    //private const float RATE_OF_ATTACK = 3.0f;
     private const float VERTICAL_LIMIT = 1.8f;
-
-    private NavMeshAgent agent;
 
     [SerializeField] private Transform playerTransform;
 
+    private Animator animator;
     private CapsuleCollider hurtbox;
-    //private Vector3 spawnLocation;
+    private NavMeshAgent agent;
+    private Vector3 spawnLocation;
 
-    private float gainAggroRange = 8f;
-    private float loseAggroRange = 16f;
+    private float gainAggroRange = 10f;
+    private float loseAggroRange = 15f;
     private float attackRange = 2f;
 
     private bool canDropItem = true;
     private bool canAttack = true;
     private bool isAttacking = false;
     private bool isAggro = false;
+    private bool isReturning = false;
     #endregion
 
     #region UnityMethods
@@ -37,49 +35,76 @@ public class BaseEnemy : MonoBehaviour {
         if (agent == null) {
             throw new System.Exception("Error! " + name + ": is missing NavMeshAgent.");
         }
+
+        animator = GetComponent<Animator>();
+        if (animator == null) {
+            throw new System.Exception("Error! " + name + ": is missing Animator.");
+        }
+
+        spawnLocation = transform.position;
     }
 
     private void Update() {
         CheckAggro();
 
         if (isAggro) {
-            Move();
+            MoveTowardsPlayer();
+        }
+
+        if (canAttack) {
+            Attack();
         }
     }
     #endregion
 
     #region CombatMethods
     private void CheckAggro() {
+        if (Vector3.Distance(transform.position, spawnLocation) < 0.1f) {
+            isReturning = false;
+        }
+
         Vector2 target = new Vector2(playerTransform.position.x, playerTransform.position.z);
         Vector2 self = new Vector2(transform.position.x, transform.position.z);
         float xzDistance = Vector2.Distance(target, self);
         float yDistance = playerTransform.position.y - transform.position.y;
 
-        if (xzDistance < gainAggroRange && yDistance < VERTICAL_LIMIT) {
-            isAggro = true;
+        if (yDistance < VERTICAL_LIMIT && !isReturning) {
+            if (xzDistance < gainAggroRange) {
+                isAggro = true;
+            }
+
+            if (xzDistance < attackRange) {
+                canAttack = true;
+            }
+            else {
+                canAttack = false;
+            }
         }
 
-        if (xzDistance < attackRange && yDistance < VERTICAL_LIMIT) {
-            canAttack = true;
-        }
-        else {
-            canAttack = false;
-        }
-
-        if (xzDistance > loseAggroRange) {
+        Vector2 xzSpawnPosition = new Vector2(spawnLocation.x, spawnLocation.z);
+        if (Vector2.Distance(self, xzSpawnPosition) > loseAggroRange) {
             isAggro = false;
+            MoveTowardsSpawn();
         }
+    }
+
+    private void Attack() {
+        // todo
     }
     #endregion
 
     #region MovementMethods
-    private void Move() {
+    private void MoveTowardsPlayer() {
         Vector3 lookDirection = (playerTransform.position - transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(lookDirection.x, 0f, lookDirection.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        agent.destination = playerTransform.position;
-        //agent.SetDestination(playerTransform.position);
+        agent.SetDestination(playerTransform.position);
+    }
+
+    private void MoveTowardsSpawn() {
+        isReturning = true;
+        agent.SetDestination(spawnLocation);
     }
     #endregion
 
