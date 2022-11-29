@@ -168,7 +168,6 @@ public class Player : MonoBehaviour {
     // Read attack input to determine which attack or ability the player is using
     public void OnBasicAttack(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started) {
-            Debug.Log("attack input");
             isAttacking = true;
             currentAbility = AbilityType.Basic;
         }

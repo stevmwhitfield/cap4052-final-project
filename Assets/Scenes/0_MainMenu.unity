@@ -166,6 +166,9 @@ Transform:
   m_Children:
   - {fileID: 1595109117}
   - {fileID: 436023262}
+  - {fileID: 1149925710}
+  - {fileID: 1127217382}
+  - {fileID: 498075889}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -248,7 +251,7 @@ GameObject:
   - component: {fileID: 436023262}
   - component: {fileID: 436023263}
   m_Layer: 0
-  m_Name: SceneManager
+  m_Name: LevelManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,10 +284,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 490be19b8b5e4f84ea57ef2a84699946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuBgm: {fileID: 0}
-  ruinsBgm: {fileID: 0}
-  hillsBgm: {fileID: 0}
-  outpostBgm: {fileID: 0}
+--- !u!1 &498075888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 498075889}
+  - component: {fileID: 498075890}
+  m_Layer: 0
+  m_Name: LevelData_Outpost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &498075889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498075888}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.0468874, y: 0.9404103, z: 1.1124393}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 290449725}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &498075890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498075888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9854e88f575114d88757ce2f78c25b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  levelName: Outpost
+  audioSource: {fileID: 0}
+  bgm: {fileID: 0}
+  playerSpawnLocation: {x: 0, y: 0, z: 0}
 --- !u!1 &741031297
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,6 +630,55 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1127217381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1127217382}
+  - component: {fileID: 1127217383}
+  m_Layer: 0
+  m_Name: LevelData_Hills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1127217382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127217381}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.0468874, y: 0.9404103, z: 1.1124393}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 290449725}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1127217383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127217381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9854e88f575114d88757ce2f78c25b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  levelName: Hills
+  audioSource: {fileID: 0}
+  bgm: {fileID: 0}
+  playerSpawnLocation: {x: 0, y: 0, z: 0}
 --- !u!1 &1140187828
 GameObject:
   m_ObjectHideFlags: 0
@@ -717,6 +814,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1140187828}
   m_CullTransparentMesh: 1
+--- !u!1 &1149925709
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1149925710}
+  - component: {fileID: 1149925711}
+  m_Layer: 0
+  m_Name: LevelData_Ruins
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1149925710
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149925709}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.0468874, y: 0.9404103, z: 1.1124393}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 290449725}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1149925711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149925709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9854e88f575114d88757ce2f78c25b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  levelName: Ruins
+  audioSource: {fileID: 0}
+  bgm: {fileID: 0}
+  playerSpawnLocation: {x: 0, y: 0, z: 0}
 --- !u!1 &1595109116
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,12 +907,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a77a7e422662a2a4fb4ad3f37801df1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactPrefab: {fileID: 0}
-  blueCrystalPrefab: {fileID: 0}
-  greenCrystalPrefab: {fileID: 0}
-  redCrystalPrefab: {fileID: 0}
-  purpleCrystalPrefab: {fileID: 0}
-  runePrefab: {fileID: 0}
+  levelDataRuins: {fileID: 1149925711}
+  levelDataHills: {fileID: 1127217383}
+  levelDataOutpost: {fileID: 498075890}
 --- !u!1 &1763545996
 GameObject:
   m_ObjectHideFlags: 0

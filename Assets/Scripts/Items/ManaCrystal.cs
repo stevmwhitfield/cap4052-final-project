@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ManaCrystal : MonoBehaviour {
@@ -11,7 +9,7 @@ public class ManaCrystal : MonoBehaviour {
     }
     [SerializeField] private Colors color;
 
-    private Vector3 spawnLocation;
+    private Vector3 spawnLocation; // might delete
 
     private AudioSource audioSource;
     [SerializeField] private AudioClip collectSfx;
@@ -40,16 +38,17 @@ public class ManaCrystal : MonoBehaviour {
             Value = 20;
         }
     }
-
-    private void Update() {
-
-    }
     #endregion
 
     #region CollisionMethods
-    private void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.CompareTag("Player")) {
-            GameManager.AddManaCrystal(Value);
+    private void OnTriggerEnter(Collider other) {
+        if (other.gameObject.CompareTag("Player")) {
+            if (GameManager.ActiveLevel != null) {
+                GameManager.ActiveLevel.UpdateCrystals(Value);
+            }
+            else {
+                Debug.Log("TestLevel: collected " + color.ToString() + "(" + Value + ") crystal.");
+            }
             audioSource.PlayOneShot(collectSfx);
             Destroy(gameObject);
         }

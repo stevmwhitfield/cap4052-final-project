@@ -20,10 +20,6 @@ public class Item : MonoBehaviour {
         t = 0f;
     }
 
-    private void Update() {
-
-    }
-
     private void FixedUpdate() {
         if (t >= 1) {
             hoverDirection = -1;
@@ -32,8 +28,8 @@ public class Item : MonoBehaviour {
             hoverDirection = 1;
         }
         t += Time.fixedDeltaTime * hoverDirection;
-        transform.position = Vector3.Lerp(new Vector3(0f, minY, 0f), new Vector3(0f, maxY, 0f), t);
-        transform.Rotate(0f, 0f, 2f);
+        transform.position = Vector3.Lerp(new Vector3(transform.position.x, minY, transform.position.z), new Vector3(transform.position.x, maxY, transform.position.z), t);
+        transform.Rotate(0f, 2f, 0f);
     }
     #endregion
 
