@@ -16,7 +16,7 @@ public class LevelData : MonoBehaviour {
     [SerializeField] private LevelType type;
     [SerializeField] private string levelName;
 
-    public AudioSource audioSource;
+    private AudioSource audioSource;
     [SerializeField] private AudioClip bgm;
 
     [SerializeField] private Vector3 playerSpawnLocation;

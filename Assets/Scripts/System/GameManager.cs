@@ -31,7 +31,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Start() {
-        ActiveLevel = levelData[activeSceneIndex - 1];
+        if (activeSceneIndex > 0) {
+            ActiveLevel = levelData[activeSceneIndex - 1];
+        }
     }
     #endregion
 
