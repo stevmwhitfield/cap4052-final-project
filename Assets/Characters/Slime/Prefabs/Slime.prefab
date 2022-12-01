@@ -115,9 +115,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_audioClip: {fileID: 8300000, guid: 6db1027b30422424892c5c7bb716e3ac, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 244ab94364c7f72488d8ccaf0efe35e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTransform: {fileID: 0}
+  attackSfx: {fileID: 8300000, guid: 7c9be7cfc0b46994b839aa51b3fd8280, type: 3}
 --- !u!195 &9096906573444602732
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
     #region UnityMethods
     private void Awake() {
         activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        
 
         levelData.Add(levelDataRuins);
         levelData.Add(levelDataHills);
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Start() {
+        Debug.Log(activeSceneIndex);
         if (activeSceneIndex > 0) {
             ActiveLevel = levelData[activeSceneIndex - 1];
         }

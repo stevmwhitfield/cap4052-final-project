@@ -3,7 +3,19 @@ guid: 1b8043bb750bd164cbad603331035a57
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - mainCamera: {instanceID: 0}
+  - cameraTarget: {instanceID: 0}
+  - walkSfx: {instanceID: 0}
+  - runSfx: {instanceID: 0}
+  - jumpSfx: {instanceID: 0}
+  - landSfx: {instanceID: 0}
+  - basicAttackSfx: {fileID: 8300000, guid: 4f0f806e357425c4d88afd77649f83e7, type: 3}
+  - blastAbilitySfx: {instanceID: 0}
+  - barrierAbilitySfx: {instanceID: 0}
+  - hurtSfx: {fileID: 8300000, guid: dbdf8350563cfb742a8bf526fdb09bf6, type: 3}
+  - deathSfx: {fileID: 8300000, guid: ddd5cb4680848c342bd0b9f12047f041, type: 3}
+  - hitbox: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

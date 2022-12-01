@@ -18,13 +18,13 @@ public class Player : MonoBehaviour {
 
     [SerializeField] private Transform cameraTarget;
 
-    [SerializeField] private AudioClip walkSfx;
-    [SerializeField] private AudioClip runSfx;
-    [SerializeField] private AudioClip jumpSfx;
-    [SerializeField] private AudioClip landSfx;
+    //[SerializeField] private AudioClip walkSfx;
+    //[SerializeField] private AudioClip runSfx;
+    //[SerializeField] private AudioClip jumpSfx;
+    //[SerializeField] private AudioClip landSfx;
     [SerializeField] private AudioClip basicAttackSfx;
-    [SerializeField] private AudioClip blastAbilitySfx;
-    [SerializeField] private AudioClip barrierAbilitySfx;
+    //[SerializeField] private AudioClip blastAbilitySfx;
+    //[SerializeField] private AudioClip barrierAbilitySfx;
     [SerializeField] private AudioClip hurtSfx;
     [SerializeField] private AudioClip deathSfx;
 
@@ -123,7 +123,7 @@ public class Player : MonoBehaviour {
                 JumpCallback();
             }
             if (isAttacking) {
-                AttackCallback(currentAbility);
+                //AttackCallback(currentAbility);
             }
         }
     }
@@ -235,22 +235,22 @@ public class Player : MonoBehaviour {
             }
 
             // play walk or run audio
-            if (isRunning) {
-                if (runSfx != null) {
-                    audioSource.PlayOneShot(runSfx);
-                }
-                else {
-                    Debug.LogWarning("Warning! " + name + ": is missing runSfx.");
-                }
-            }
-            else {
-                if (walkSfx != null) {
-                    audioSource.PlayOneShot(walkSfx);
-                }
-                else {
-                    Debug.LogWarning("Warning! " + name + ": is missing walkSfx.");
-                }
-            }
+            //if (isRunning) {
+            //    if (runSfx != null) {
+            //        audioSource.PlayOneShot(runSfx);
+            //    }
+            //    else {
+            //        Debug.LogWarning("Warning! " + name + ": is missing runSfx.");
+            //    }
+            //}
+            //else {
+            //    if (walkSfx != null) {
+            //        audioSource.PlayOneShot(walkSfx);
+            //    }
+            //    else {
+            //        Debug.LogWarning("Warning! " + name + ": is missing walkSfx.");
+            //    }
+            //}
         }
     }
 
@@ -289,12 +289,12 @@ public class Player : MonoBehaviour {
 
             animator.SetTrigger("Jump");
 
-            if (jumpSfx != null) {
-                audioSource.PlayOneShot(jumpSfx);
-            }
-            else {
-                Debug.LogWarning("Warning! " + name + ": is missing jumpSfx.");
-            }
+            //if (jumpSfx != null) {
+            //    audioSource.PlayOneShot(jumpSfx);
+            //}
+            //else {
+            //    Debug.LogWarning("Warning! " + name + ": is missing jumpSfx.");
+            //}
         }
     }
 
@@ -331,13 +331,13 @@ public class Player : MonoBehaviour {
             UseAttack(1.2f, "BasicAttack", basicAttackSfx);
         }
 
-        if (currentAbility == AbilityType.Blast && blastRuneCollected) {
-            UseAttack(1.0f, "BlastAbility", blastAbilitySfx);
-        }
+        //if (currentAbility == AbilityType.Blast && blastRuneCollected) {
+        //    UseAttack(1.0f, "BlastAbility", blastAbilitySfx);
+        //}
 
-        if (currentAbility == AbilityType.Barrier && barrierRuneCollected) {
-            UseAttack(1.0f, "BarrierAbility", barrierAbilitySfx);
-        }
+        //if (currentAbility == AbilityType.Barrier && barrierRuneCollected) {
+        //    UseAttack(1.0f, "BarrierAbility", barrierAbilitySfx);
+        //}
     }
 
     private void UseAttack(float attackTimer, string animation, AudioClip sfx) {
@@ -362,41 +362,38 @@ public class Player : MonoBehaviour {
             isDead = true;
         }
     }
+
+    public void TakeDamage() {
+        currentHp -= 1;
+        animator.SetTrigger("TakeDamage");
+        animator.SetInteger("Health", currentHp);
+
+        if (hurtSfx != null) {
+            audioSource.PlayOneShot(hurtSfx);
+        }
+        else {
+            Debug.LogWarning("Warning! " + name + ": is missing hurtSfx.");
+        }
+    }
     #endregion
 
     #region CollisionMethods
     private void OnCollisionEnter(Collision collision) {
-        // check if player hurtbox collides with enemy
-
-        //if (collision.gameObject.CompareTag("Enemy")) {
-        //    EnemyCollisionCallback(collision.gameObject);
-        //}
-    }
-
-    private void ItemCollisionCallback(GameObject item) {
-        // if (item.prefab == "Artifact") {
-        //   GameManager.CollectArtifact(item);
-        // }
-
-        // if (item.prefab == "ManaCrystal") {
-        //   GameManager.CollectManaCrystal(item);
-        // }
-
-        // if (item.name == "BlastRune") {
-        //   GameManager.CollectBlastRune(item);
-        // }
-
-        // if (item.name == "BarrierRune") {
-        //   GameManager.CollectBlastRune(item);
-        // }
-
-        // Destroy(item);
+        if (isAttacking) {
+            Ray ray = new Ray(hitbox.transform.position, transform.forward);
+            RaycastHit hit;
+            if (hitbox.Raycast(ray, out hit, 1.5f)) {
+                if (hit.collider.gameObject.CompareTag("Enemy")) {
+                    EnemyCollisionCallback(hit.collider.gameObject);
+                }
+            }
+        }
     }
 
     private void EnemyCollisionCallback(GameObject enemy) {
-        // kill enemy
-
-        // enemy.die();
+        enemy.GetComponent<Animator>().SetTrigger("TakeDamage");
+        enemy.GetComponent<AudioSource>().Play();
+        Destroy(enemy);
     }
     #endregion
 }

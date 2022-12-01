@@ -2525,7 +2525,7 @@ MonoBehaviour:
   type: 0
   levelName: Ruins
   bgm: {fileID: 0}
-  playerSpawnLocation: {x: 0, y: 0, z: 0}
+  playerSpawnLocation: {x: 2, y: 0, z: 2}
 --- !u!82 &1149925712
 AudioSource:
   m_ObjectHideFlags: 0

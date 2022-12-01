@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class ManaCrystal : MonoBehaviour {
@@ -49,9 +50,21 @@ public class ManaCrystal : MonoBehaviour {
             else {
                 Debug.Log("TestLevel: collected " + color.ToString() + "(" + Value + ") crystal.");
             }
-            audioSource.PlayOneShot(collectSfx);
-            Destroy(gameObject);
+            
+            if (collectSfx != null) {
+                audioSource.PlayOneShot(collectSfx);
+            }
+            else {
+                Debug.LogWarning("Warning! " + name + ": missing collectSfx.");
+            }
+
+            StartCoroutine(DelayDestroy());
         }
+    }
+
+    private IEnumerator DelayDestroy() {
+        yield return new WaitForSeconds(0.05f);
+        Destroy(gameObject);
     }
     #endregion
 }

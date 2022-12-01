@@ -1,3 +1,5 @@
+using System.Collections;
+using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -6,7 +8,10 @@ public class BaseEnemy : MonoBehaviour {
     #region Fields
     private const float VERTICAL_LIMIT = 1.8f;
 
-    [SerializeField] private Transform playerTransform;
+    [SerializeField] private AudioClip attackSfx;
+    private AudioSource audioSource;
+
+    private Transform playerTransform;
 
     private Animator animator;
     private CapsuleCollider hurtbox;
@@ -26,6 +31,11 @@ public class BaseEnemy : MonoBehaviour {
 
     #region UnityMethods
     private void Start() {
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        if (playerTransform == null) {
+            throw new System.Exception("Error! " + name + ": cannot find Player transform.");
+        }
+
         hurtbox = GetComponent<CapsuleCollider>();
         if (hurtbox == null) {
             throw new System.Exception("Error! " + name + ": is missing CapsuleCollider.");
@@ -41,11 +51,19 @@ public class BaseEnemy : MonoBehaviour {
             throw new System.Exception("Error! " + name + ": is missing Animator.");
         }
 
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) {
+            throw new System.Exception("Error! " + name + ": is missing AudioSource.");
+        }
+
         spawnLocation = transform.position;
     }
 
     private void Update() {
         CheckAggro();
+
+        animator.SetFloat("Speed", new Vector3(agent.velocity.x, 0, agent.velocity.z).magnitude);
+        animator.SetBool("IsAggro", isAggro);
 
         if (isAggro) {
             MoveTowardsPlayer();
@@ -88,8 +106,20 @@ public class BaseEnemy : MonoBehaviour {
         }
     }
 
+    private IEnumerator AttackBuffer() {
+        yield return new WaitForSeconds(2.0f);
+        canAttack = true;
+    }
+
     private void Attack() {
-        // todo
+        canAttack = false;
+        animator.SetTrigger("Attack");
+        if (attackSfx != null) {
+            audioSource.PlayOneShot(attackSfx);
+        }
+        else {
+            Debug.LogWarning("Warning! " + name + ": is missing attackSfx.");
+        }
     }
     #endregion
 
@@ -110,7 +140,9 @@ public class BaseEnemy : MonoBehaviour {
 
     #region CollisionMethods
     private void OnCollisionEnter(Collision collision) {
-
+        if (isAttacking && collision.gameObject.CompareTag("Player")) {
+            collision.gameObject.GetComponent<Player>().TakeDamage();
+        }
     }
     #endregion
 }

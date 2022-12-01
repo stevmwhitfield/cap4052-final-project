@@ -13,7 +13,7 @@ public class MenuButtons : MonoBehaviour {
 
     #region MenuMethods
     public void OnPlay() {
-        SceneManager.LoadScene(1);
+        LevelManager.LoadLevel(1);
     }
 
     public void OnReturn() {
