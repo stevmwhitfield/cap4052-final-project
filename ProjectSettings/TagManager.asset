@@ -11,6 +11,11 @@ TagManager:
   - GameManager
   - PauseMenuMain
   - PauseMenuSettings
+  - Overlay
+  - ArtifactsCollectedText
+  - CrystalsCollectedText
+  - LevelProgressText
+  - WinCanvas
   layers:
   - Default
   - TransparentFX

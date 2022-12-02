@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class LevelData : MonoBehaviour {
@@ -23,7 +24,14 @@ public class LevelData : MonoBehaviour {
     private List<Vector3> enemySpawnLocations;  // might delete
     private List<Vector3> itemSpawnLocations;   // might delete
 
-    public float CompletionProgress { get; set; } = 0f;
+    private GameObject overlayCanvas;
+    private TextMeshProUGUI artifactsCollectedText;
+    private TextMeshProUGUI crystalsCollectedText;
+    private TextMeshProUGUI levelProgressText;
+
+    private GameObject winCanvas;
+
+    public float CompletionProgress { get; set; }
 
     private int artifactsCollected = 0;
     private int crystalsCollected = 0;
@@ -36,29 +44,43 @@ public class LevelData : MonoBehaviour {
         if (audioSource == null) {
             throw new System.Exception("Error! " + name + ": missing AudioSource.");
         }
+
+        winCanvas = GameObject.FindGameObjectWithTag("WinCanvas");
+        if (winCanvas == null)
+            throw new System.Exception("missing winCanvas");
+
+        overlayCanvas = GameObject.FindGameObjectWithTag("Overlay");
+        artifactsCollectedText = GameObject.FindGameObjectWithTag("ArtifactsCollectedText").GetComponent<TextMeshProUGUI>();
+        crystalsCollectedText = GameObject.FindGameObjectWithTag("CrystalsCollectedText").GetComponent<TextMeshProUGUI>();
+        levelProgressText = GameObject.FindGameObjectWithTag("LevelProgressText").GetComponent<TextMeshProUGUI>();
+    }
+
+    private void Start() {
+        CompletionProgress = 0f;
+        overlayCanvas.SetActive(true);
+        winCanvas.SetActive(false);
     }
     #endregion
 
     #region Methods
     private void UpdateLevelProgress() {
-        // 60% artifacts + 40% crystals
-        if (levelName == "Ruins") {
-            CompletionProgress = 0.6f * (artifactsCollected / ARTIFACTS_PER_LEVEL) + 0.4f * (crystalsCollected / CRYSTALS_PER_LEVEL);
-        }
-        // 40% artifacts + 30% crystals + 30% runes
-        else {
-            CompletionProgress = 0.4f * (artifactsCollected / ARTIFACTS_PER_LEVEL) + 0.3f * (crystalsCollected / CRYSTALS_PER_LEVEL) + 0.3f * isRuneActivated;
+        CompletionProgress = 0.6f * ((float)artifactsCollected / (float)ARTIFACTS_PER_LEVEL) + 0.4f * ((float)crystalsCollected / (float)CRYSTALS_PER_LEVEL);
+        levelProgressText.text = $"{CompletionProgress * 100}%";
+        if (CompletionProgress == 1) {
+            winCanvas.SetActive(true);
         }
         GameManager.UpdateGameProgress();
     }
 
     public void UpdateArtifacts() {
         artifactsCollected += 1;
+        artifactsCollectedText.text = $"Stars: {artifactsCollected}/3";
         UpdateLevelProgress();
     }
 
     public void UpdateCrystals(int value) {
         crystalsCollected += value;
+        crystalsCollectedText.text = $"Crystals: {crystalsCollected}/200";
         UpdateLevelProgress();
     }
 

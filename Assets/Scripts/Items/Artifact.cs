@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Artifact : MonoBehaviour
@@ -26,8 +27,13 @@ public class Artifact : MonoBehaviour
                 Debug.Log("TestLevel: collected artifact.");
             }
             audioSource.PlayOneShot(collectSfx);
-            Destroy(gameObject);
+            StartCoroutine(DelayDestroy());
         }
+    }
+
+    private IEnumerator DelayDestroy() {
+        yield return new WaitForSeconds(0.05f);
+        Destroy(gameObject);
     }
     #endregion
 }

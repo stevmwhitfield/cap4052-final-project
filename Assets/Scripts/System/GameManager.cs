@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,8 @@ public class GameManager : MonoBehaviour {
 
     private static int activeSceneIndex;
 
+    
+
     //public static bool isPaused = false;
     //public static bool isBlastUnlocked = false;
     //public static bool isBarrierUnlocked = false;
@@ -37,6 +40,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Start() {
+        
         if (activeSceneIndex > 0) {
             ActiveLevel = levelData[activeSceneIndex - 1];
         }
