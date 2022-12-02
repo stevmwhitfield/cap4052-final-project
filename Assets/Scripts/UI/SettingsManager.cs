@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
-    [SerializeField] private static Slider slider;
-    [SerializeField] private static TextMeshProUGUI sliderText;
+    [SerializeField] private Slider slider;
+    [SerializeField] private TextMeshProUGUI sliderText;
 
     public void OnSensitivitySettingChange() {
         GameManager.playerSettings.sensitivity = slider.value;

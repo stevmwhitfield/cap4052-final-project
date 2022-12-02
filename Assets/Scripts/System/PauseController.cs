@@ -8,12 +8,24 @@ public class PauseController : MonoBehaviour {
 
     public static bool IsPaused { get; private set; }
 
-    [SerializeField] private static GameObject pauseMenu;
-    [SerializeField] private static GameObject mainScreen;
-    [SerializeField] private static GameObject settingsScreen;
+    private GameObject pauseMenu;
+    private GameObject mainScreen;
+    //private GameObject settingsScreen;
 
     private void Awake() {
         IsPaused = false;
+        pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
+        if (pauseMenu == null) throw new System.Exception("Pause menu is null");
+        mainScreen = GameObject.FindGameObjectWithTag("PauseMenuMain");
+        if (mainScreen == null) throw new System.Exception("Pause main screen is null");
+        //settingsScreen = GameObject.FindGameObjectWithTag("PauseMenuSettings");
+        //if (settingsScreen == null) throw new System.Exception("Pause settings screen is null");
+    }
+
+    private void Start()
+    {
+        pauseMenu.SetActive(false);
+        //settingsScreen.SetActive(false);
     }
 
     public void OnPause(InputAction.CallbackContext c) {
@@ -33,15 +45,16 @@ public class PauseController : MonoBehaviour {
 
     public void OnSettingsPress() {
         mainScreen.SetActive(false);
-        settingsScreen.SetActive(true);
+        //settingsScreen.SetActive(true);
     }
 
     public void OnReturnPress() {
         mainScreen.SetActive(true);
-        settingsScreen.SetActive(false);
+        //settingsScreen.SetActive(false);
     }
 
     public void OnMenuMenuPress() {
+        pauseMenu.SetActive(false);
         SceneManager.LoadScene(0);
     }
 
@@ -49,7 +62,7 @@ public class PauseController : MonoBehaviour {
         Application.Quit(0);
     }
 
-    public static void ResumeGame() {
+    public void ResumeGame() {
         pauseMenu.SetActive(false);
         Time.timeScale = 1.0f;
         IsPaused = false;
@@ -57,7 +70,7 @@ public class PauseController : MonoBehaviour {
         Cursor.visible = false;
     }
 
-    public static void PauseGame() {
+    public void PauseGame() {
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         IsPaused = true;

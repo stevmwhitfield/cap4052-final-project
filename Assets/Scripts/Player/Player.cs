@@ -67,6 +67,10 @@ public class Player : MonoBehaviour {
     #endregion
 
     #region UnityMethods
+    private void Awake()
+    {
+        cameraSensitivity = GameManager.playerSettings.sensitivity;
+    }
     private void Start() {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -206,11 +210,12 @@ public class Player : MonoBehaviour {
     public void OnPause(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started) {
             if (PauseController.IsPaused) {
-                PauseController.ResumeGame();
+                GameObject.FindGameObjectWithTag("GameManager").GetComponent<PauseController>().ResumeGame();
             }
             if (!PauseController.IsPaused) {
-                PauseController.PauseGame();
+                GameObject.FindGameObjectWithTag("GameManager").GetComponent<PauseController>().PauseGame();
             }
+            cameraSensitivity = GameManager.playerSettings.sensitivity;
         }
     }
     #endregion

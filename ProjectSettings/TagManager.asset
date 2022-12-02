@@ -7,6 +7,10 @@ TagManager:
   - Environment
   - SlimeEnemy
   - TurtleEnemy
+  - PauseMenu
+  - GameManager
+  - PauseMenuMain
+  - PauseMenuSettings
   layers:
   - Default
   - TransparentFX
