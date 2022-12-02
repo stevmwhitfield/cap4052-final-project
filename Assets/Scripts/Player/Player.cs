@@ -97,7 +97,7 @@ public class Player : MonoBehaviour {
     }
 
     private void Update() {
-        if (!GameManager.isPaused) {
+        if (!PauseController.IsPaused) {
             HealthCheck();
 
             // Animator parameters
@@ -116,7 +116,7 @@ public class Player : MonoBehaviour {
     }
 
     private void FixedUpdate() {
-        if (!GameManager.isPaused && !isDead) {
+        if (!PauseController.IsPaused && !isDead) {
             MoveCallback();
             if (isJumping) {
                 GroundCheck();
@@ -125,6 +125,10 @@ public class Player : MonoBehaviour {
             if (isAttacking) {
                 //AttackCallback(currentAbility);
             }
+        }
+        else {
+            Debug.Log("IsPaused: " + PauseController.IsPaused);
+            Debug.Log("isDead: " + isDead);
         }
     }
 
@@ -196,6 +200,17 @@ public class Player : MonoBehaviour {
         else if (c.phase == InputActionPhase.Canceled) {
             isAttacking = false;
             currentAbility = AbilityType.None;
+        }
+    }
+
+    public void OnPause(InputAction.CallbackContext c) {
+        if (c.phase == InputActionPhase.Started) {
+            if (PauseController.IsPaused) {
+                PauseController.ResumeGame();
+            }
+            if (!PauseController.IsPaused) {
+                PauseController.PauseGame();
+            }
         }
     }
     #endregion

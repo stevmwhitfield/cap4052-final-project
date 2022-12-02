@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,20 +12,24 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private LevelData levelDataHills;
     [SerializeField] private LevelData levelDataOutpost;
 
-    private static int activeSceneIndex;
     public static LevelData ActiveLevel { get; set; }
+
+    public static Settings playerSettings;
 
     public static float completionProgress = 0f;
 
-    public static bool isPaused = false;
-    public static bool isBlastUnlocked = false;
-    public static bool isBarrierUnlocked = false;
+    private static int activeSceneIndex;
+
+    //public static bool isPaused = false;
+    //public static bool isBlastUnlocked = false;
+    //public static bool isBarrierUnlocked = false;
     #endregion
 
     #region UnityMethods
     private void Awake() {
         activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        
+
+        playerSettings = new Settings();
 
         levelData.Add(levelDataRuins);
         levelData.Add(levelDataHills);
@@ -32,10 +37,11 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Start() {
-        Debug.Log(activeSceneIndex);
         if (activeSceneIndex > 0) {
             ActiveLevel = levelData[activeSceneIndex - 1];
         }
+
+        playerSettings.sensitivity = 0.3f;
     }
     #endregion
 
@@ -46,7 +52,7 @@ public class GameManager : MonoBehaviour {
             temp += levelData[i].CompletionProgress;
         }
         completionProgress = temp;
-    }    
+    }
     #endregion
 
 }

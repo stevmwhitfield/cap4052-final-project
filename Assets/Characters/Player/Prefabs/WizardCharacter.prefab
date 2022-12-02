@@ -745,6 +745,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: c983d955-d25a-49b7-832f-1ff08de238ec
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7986207918632109433}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 21ccf98b-08c6-47b4-a37c-788e69acba86
+    m_ActionName: Player/Pause[/Keyboard/e]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -764,13 +780,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
   cameraTarget: {fileID: 3755579113321096313}
-  walkSfx: {fileID: 0}
-  runSfx: {fileID: 0}
-  jumpSfx: {fileID: 0}
-  landSfx: {fileID: 0}
   basicAttackSfx: {fileID: 8300000, guid: 4f0f806e357425c4d88afd77649f83e7, type: 3}
-  blastAbilitySfx: {fileID: 0}
-  barrierAbilitySfx: {fileID: 0}
   hurtSfx: {fileID: 8300000, guid: dbdf8350563cfb742a8bf526fdb09bf6, type: 3}
   deathSfx: {fileID: 8300000, guid: ddd5cb4680848c342bd0b9f12047f041, type: 3}
   hitbox: {fileID: 579761264376975444}

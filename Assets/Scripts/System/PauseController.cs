@@ -8,9 +8,13 @@ public class PauseController : MonoBehaviour {
 
     public static bool IsPaused { get; private set; }
 
-    [SerializeField] private GameObject pauseMenu;
-    [SerializeField] private GameObject mainScreen;
-    [SerializeField] private GameObject settingsScreen;
+    [SerializeField] private static GameObject pauseMenu;
+    [SerializeField] private static GameObject mainScreen;
+    [SerializeField] private static GameObject settingsScreen;
+
+    private void Awake() {
+        IsPaused = false;
+    }
 
     public void OnPause(InputAction.CallbackContext c) {
         if (c.phase == InputActionPhase.Started) {
@@ -45,7 +49,7 @@ public class PauseController : MonoBehaviour {
         Application.Quit(0);
     }
 
-    private void ResumeGame() {
+    public static void ResumeGame() {
         pauseMenu.SetActive(false);
         Time.timeScale = 1.0f;
         IsPaused = false;
@@ -53,7 +57,7 @@ public class PauseController : MonoBehaviour {
         Cursor.visible = false;
     }
 
-    private void PauseGame() {
+    public static void PauseGame() {
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         IsPaused = true;
