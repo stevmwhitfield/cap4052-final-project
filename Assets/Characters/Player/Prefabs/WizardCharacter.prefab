@@ -492,6 +492,7 @@ GameObject:
   - component: {fileID: 8517134760872362183}
   - component: {fileID: 1697479250687387948}
   - component: {fileID: 7986207918632109433}
+  - component: {fileID: 1428947044015698789}
   - component: {fileID: 6454806743490278778}
   m_Layer: 6
   m_Name: WizardCharacter
@@ -515,6 +516,7 @@ Transform:
   - {fileID: 4358465402289130}
   - {fileID: 4668634257833992}
   - {fileID: 3755579113321096313}
+  - {fileID: 3215639861242644425}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -595,8 +597,8 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnMove
         m_Mode: 0
         m_Arguments:
@@ -611,8 +613,8 @@ MonoBehaviour:
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnLook
         m_Mode: 0
         m_Arguments:
@@ -627,8 +629,8 @@ MonoBehaviour:
     m_ActionName: Player/Look[/Mouse/delta]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnJump
         m_Mode: 0
         m_Arguments:
@@ -643,8 +645,8 @@ MonoBehaviour:
     m_ActionName: Player/Jump[/Keyboard/space]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnSprint
         m_Mode: 0
         m_Arguments:
@@ -659,8 +661,8 @@ MonoBehaviour:
     m_ActionName: Player/Sprint[/Keyboard/leftShift]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnBasicAttack
         m_Mode: 0
         m_Arguments:
@@ -675,8 +677,8 @@ MonoBehaviour:
     m_ActionName: Player/BasicAttack[/Mouse/leftButton]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnBlastAbility
         m_Mode: 0
         m_Arguments:
@@ -691,8 +693,8 @@ MonoBehaviour:
     m_ActionName: Player/BlastAbility[/Mouse/rightButton]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnBarrierAbility
         m_Mode: 0
         m_Arguments:
@@ -747,8 +749,8 @@ MonoBehaviour:
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7986207918632109433}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 1428947044015698789}
+        m_TargetAssemblyTypeName: InputController, Assembly-CSharp
         m_MethodName: OnPause
         m_Mode: 0
         m_Arguments:
@@ -778,13 +780,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b8043bb750bd164cbad603331035a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  JUMP_FORCE: 12
   mainCamera: {fileID: 0}
   cameraTarget: {fileID: 3755579113321096313}
+  attackPoint: {fileID: 3215639861242644425}
   basicAttackSfx: {fileID: 8300000, guid: 4f0f806e357425c4d88afd77649f83e7, type: 3}
   hurtSfx: {fileID: 8300000, guid: dbdf8350563cfb742a8bf526fdb09bf6, type: 3}
   deathSfx: {fileID: 8300000, guid: ddd5cb4680848c342bd0b9f12047f041, type: 3}
   hitbox: {fileID: 579761264376975444}
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 128
+--- !u!114 &1428947044015698789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248815240492774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70585998d66168848bf9538f220a8bd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!82 &6454806743490278778
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2764,6 +2781,37 @@ Transform:
   m_Father: {fileID: 4320116383092368}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6594098704408065998
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3215639861242644425}
+  m_Layer: 6
+  m_Name: AttackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3215639861242644425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6594098704408065998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4463868907105534}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7547471044341018887
 GameObject:
   m_ObjectHideFlags: 0
@@ -2788,7 +2836,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7547471044341018887}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.4, z: 0}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

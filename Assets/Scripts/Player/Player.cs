@@ -12,33 +12,30 @@ public class Player : MonoBehaviour {
     private const float WALK_SPEED = 7.0f;
     private const float RUN_SPEED = 11.0f;
     private const float ACCELERATION = 50.0f;
-    public float JUMP_FORCE = 12.0f;
+    private const float JUMP_FORCE = 9.0f;
 
     [SerializeField] private Camera mainCamera;
 
     [SerializeField] private Transform cameraTarget;
+    [SerializeField] private Transform attackPoint;
 
-    //[SerializeField] private AudioClip walkSfx;
-    //[SerializeField] private AudioClip runSfx;
-    //[SerializeField] private AudioClip jumpSfx;
-    //[SerializeField] private AudioClip landSfx;
     [SerializeField] private AudioClip basicAttackSfx;
-    //[SerializeField] private AudioClip blastAbilitySfx;
-    //[SerializeField] private AudioClip barrierAbilitySfx;
     [SerializeField] private AudioClip hurtSfx;
     [SerializeField] private AudioClip deathSfx;
+
+    [SerializeField] private CapsuleCollider hitbox;
+
+    [SerializeField] private LayerMask enemyLayers;
 
     private AudioSource audioSource;
 
     private Rigidbody rb;
 
-    private CapsuleCollider hurtbox; // detects incoming combat collisions
-    [SerializeField] private CapsuleCollider hitbox;  // detects outgoing combat collisions
+    private CapsuleCollider hurtbox;
 
     private Animator animator;
 
-    private Vector3 movementDirection;
-    private Vector3 lookDirection;
+    private InputController input;
 
     private int currentHp = MAX_HP;
 
@@ -46,31 +43,24 @@ public class Player : MonoBehaviour {
     private float followCameraPitch = 0f;
     private float verticalMinClamp = -45f;
     private float verticalMaxClamp = 60f;
-    private float cameraSensitivity = 0.1f;
+    private float cameraSensitivity = 0.3f;
     private float cameraTargetDirection = 0f;
     private float rotationVelocity = 0f;
     private float smoothTime = 0.1f;
 
-    private bool isDead = false;
-    private bool isRunning = false;
+    //private bool isDead = false;
     private bool isGrounded = false;
-    private bool isJumping = false;
     private bool canAttack = true;
-    private bool isAttacking = false;
     private bool blastRuneCollected = false;
     private bool barrierRuneCollected = false;
-
-    private enum AbilityType {
-        None, Basic, Blast, Barrier
-    }
-    private AbilityType currentAbility;
     #endregion
 
     #region UnityMethods
-    private void Awake()
-    {
+    private void Awake() {
+        input = GetComponent<InputController>();
         cameraSensitivity = GameManager.playerSettings.sensitivity;
     }
+
     private void Start() {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -97,42 +87,37 @@ public class Player : MonoBehaviour {
             throw new System.Exception("Error! " + name + ": missing MainCamera.");
         }
 
-        animator.SetInteger("Health", currentHp);
     }
 
     private void Update() {
         if (!PauseController.IsPaused) {
-            HealthCheck();
-
-            // Animator parameters
-            animator.SetFloat("Speed", new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude);
-            animator.SetFloat("UpVelocity", rb.velocity.y);
-        }
-        if (isDead) {
-            if (deathSfx != null) {
-                audioSource.PlayOneShot(deathSfx);
+            if (GameManager.playerSettings.sensitivity == 0) {
+                cameraSensitivity = 0.3f;
             }
             else {
-                Debug.LogWarning("Warning! " + name + ": is missing deathSfx.");
+                cameraSensitivity = GameManager.playerSettings.sensitivity;
             }
-            // GameManager.RespawnPlayer();
+
+            HealthCheck();
+
+        }
+
+        if (input.IsAttacking) {
+            AttackCallback(input.CurrentAbility);
         }
     }
 
     private void FixedUpdate() {
-        if (!PauseController.IsPaused && !isDead) {
+        if (!PauseController.IsPaused) {
+            animator.SetFloat("Speed", new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude);
+            animator.SetFloat("UpVelocity", rb.velocity.y);
+
             MoveCallback();
-            if (isJumping) {
+
+            if (input.IsJumping) {
                 GroundCheck();
                 JumpCallback();
             }
-            if (isAttacking) {
-                //AttackCallback(currentAbility);
-            }
-        }
-        else {
-            Debug.Log("IsPaused: " + PauseController.IsPaused);
-            Debug.Log("isDead: " + isDead);
         }
     }
 
@@ -141,97 +126,18 @@ public class Player : MonoBehaviour {
     }
     #endregion
 
-    #region InputMethods
-    // Read mouse input for camera direction
-    public void OnLook(InputAction.CallbackContext c) {
-        lookDirection = c.ReadValue<Vector2>();
-    }
-
-    // Read movement input to get the direction the player is trying to move in
-    public void OnMove(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started || c.phase == InputActionPhase.Performed) {
-            Vector2 input = c.ReadValue<Vector2>();
-            movementDirection = new Vector3(input.x, 0, input.y);
-        }
-        if (c.phase == InputActionPhase.Canceled) {
-            movementDirection = Vector3.zero;
-        }
-    }
-
-    // Read mapping input to check if the player is sprinting
-    public void OnSprint(InputAction.CallbackContext c) {
-        isRunning = c.ReadValueAsButton();
-    }
-
-    // Read mapping input to check if the player is jumping
-    public void OnJump(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started) {
-            isJumping = true;
-        }
-        else if (c.phase == InputActionPhase.Canceled) {
-            isJumping = false;
-        }
-    }
-
-    // Read attack input to determine which attack or ability the player is using
-    public void OnBasicAttack(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started) {
-            isAttacking = true;
-            currentAbility = AbilityType.Basic;
-        }
-        else if (c.phase == InputActionPhase.Canceled) {
-            isAttacking = false;
-            currentAbility = AbilityType.None;
-        }
-    }
-
-    public void OnBlastAbility(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started) {
-            isAttacking = true;
-            currentAbility = AbilityType.Blast;
-        }
-        else if (c.phase == InputActionPhase.Canceled) {
-            isAttacking = false;
-            currentAbility = AbilityType.None;
-        }
-    }
-
-    public void OnBarrierAbility(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started) {
-            isAttacking = true;
-            currentAbility = AbilityType.Barrier;
-        }
-        else if (c.phase == InputActionPhase.Canceled) {
-            isAttacking = false;
-            currentAbility = AbilityType.None;
-        }
-    }
-
-    public void OnPause(InputAction.CallbackContext c) {
-        if (c.phase == InputActionPhase.Started) {
-            if (PauseController.IsPaused) {
-                GameObject.FindGameObjectWithTag("GameManager").GetComponent<PauseController>().ResumeGame();
-            }
-            if (!PauseController.IsPaused) {
-                GameObject.FindGameObjectWithTag("GameManager").GetComponent<PauseController>().PauseGame();
-            }
-            cameraSensitivity = GameManager.playerSettings.sensitivity;
-        }
-    }
-    #endregion
-
     #region MovementMethods
     // Use velocity and acceleration to move the player in a direction
     private void MoveCallback() {
         // set speed based on movement input
-        float moveSpeed = isRunning ? RUN_SPEED : WALK_SPEED;
-        if (movementDirection == Vector3.zero) {
+        float moveSpeed = input.IsRunning ? RUN_SPEED : WALK_SPEED;
+        if (input.MovementDirection == Vector3.zero) {
             moveSpeed = 0f;
         }
 
         // rotate player to match movement
-        if (movementDirection != Vector3.zero) {
-            cameraTargetDirection = Mathf.Atan2(movementDirection.x, movementDirection.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
+        if (input.MovementDirection != Vector3.zero) {
+            cameraTargetDirection = Mathf.Atan2(input.MovementDirection.x, input.MovementDirection.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraTargetDirection, ref rotationVelocity, smoothTime);
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
@@ -255,7 +161,7 @@ public class Player : MonoBehaviour {
             }
 
             // play walk or run audio
-            //if (isRunning) {
+            //if (input.IsRunning) {
             //    if (runSfx != null) {
             //        audioSource.PlayOneShot(runSfx);
             //    }
@@ -277,9 +183,9 @@ public class Player : MonoBehaviour {
     // Use look direction to rotate player's camera
     private void RotateCamera() {
         // get direction for player camera
-        if (lookDirection.sqrMagnitude >= 0.01f) {
-            followCameraYaw += lookDirection.x * cameraSensitivity;
-            followCameraPitch -= lookDirection.y * cameraSensitivity;
+        if (input.LookDirection.sqrMagnitude >= 0.01f) {
+            followCameraYaw += input.LookDirection.x * cameraSensitivity;
+            followCameraPitch -= input.LookDirection.y * cameraSensitivity;
         }
 
         // clamp rotations to values between 0 and 360 degrees
@@ -335,7 +241,7 @@ public class Player : MonoBehaviour {
 
     #region CombatMethods
     // Attack timer to prevent attacking again instantly
-    private IEnumerator TimerCoroutine(float duration) {
+    private IEnumerator AttackBuffer(float duration) {
         yield return new WaitForSeconds(duration);
         canAttack = true;
     }
@@ -343,27 +249,37 @@ public class Player : MonoBehaviour {
     // Activate an attack or ability based on the active ability
     private void AttackCallback(AbilityType ability) {
         // do nothing if the player cannot attack
-        if (!canAttack || currentAbility == AbilityType.None) {
+        if (!canAttack || input.CurrentAbility == AbilityType.None) {
             return;
         }
 
-        if (currentAbility == AbilityType.Basic) {
-            UseAttack(1.2f, "BasicAttack", basicAttackSfx);
+        float buffer = 1.5f;
+        string animation = "";
+        AudioClip sfx = null;
+        float attackRange = 0.5f;
+        Vector3 attackPosition = attackPoint.position;
+
+        if (input.CurrentAbility == AbilityType.Basic) {
+            animation = "BasicAttack";
+            sfx = basicAttackSfx;
+            attackRange = 1.0f;
+            attackPosition = attackPoint.position;
         }
 
-        //if (currentAbility == AbilityType.Blast && blastRuneCollected) {
-        //    UseAttack(1.0f, "BlastAbility", blastAbilitySfx);
-        //}
+        if (input.CurrentAbility == AbilityType.Blast && blastRuneCollected) {
+            animation = "BlastAbility";
+            sfx = basicAttackSfx;
+            attackRange = 2.0f;
+            attackPosition = attackPoint.position + attackPoint.forward * 1.5f;
+        }
 
-        //if (currentAbility == AbilityType.Barrier && barrierRuneCollected) {
-        //    UseAttack(1.0f, "BarrierAbility", barrierAbilitySfx);
-        //}
+        UseAttack(buffer, animation, sfx, attackPosition, attackRange);
     }
 
-    private void UseAttack(float attackTimer, string animation, AudioClip sfx) {
+    private void UseAttack(float attackTimer, string animation, AudioClip sfx, Vector3 position, float range) {
         canAttack = false;
 
-        StartCoroutine(TimerCoroutine(attackTimer));
+        StartCoroutine(AttackBuffer(attackTimer));
         animator.SetTrigger(animation);
 
         if (sfx != null) {
@@ -372,21 +288,34 @@ public class Player : MonoBehaviour {
         else {
             Debug.LogWarning("Warning! " + name + ": is missing " + animation + " sfx.");
         }
+
+        Collider[] enemiesHit = Physics.OverlapSphere(position, range, enemyLayers);
+
+        foreach (Collider enemy in enemiesHit) {
+            enemy.gameObject.GetComponent<BaseEnemy>().Die();
+        }
     }
 
     private void HealthCheck() {
-        if (currentHp > 0) {
-            isDead = false;
+        if (currentHp <= 0) {
+            Die();
+        }
+    }
+
+    private void Die() {
+        animator.SetBool("IsDead", true);
+        if (deathSfx != null) {
+            audioSource.PlayOneShot(deathSfx);
         }
         else {
-            isDead = true;
+            Debug.LogWarning("Warning! " + name + ": is missing deathSfx.");
         }
+        // GameManager.RespawnPlayer();
     }
 
     public void TakeDamage() {
         currentHp -= 1;
         animator.SetTrigger("TakeDamage");
-        animator.SetInteger("Health", currentHp);
 
         if (hurtSfx != null) {
             audioSource.PlayOneShot(hurtSfx);
@@ -396,25 +325,4 @@ public class Player : MonoBehaviour {
         }
     }
     #endregion
-
-    #region CollisionMethods
-    private void OnCollisionEnter(Collision collision) {
-        if (isAttacking) {
-            Ray ray = new Ray(hitbox.transform.position, transform.forward);
-            RaycastHit hit;
-            if (hitbox.Raycast(ray, out hit, 1.5f)) {
-                if (hit.collider.gameObject.CompareTag("Enemy")) {
-                    EnemyCollisionCallback(hit.collider.gameObject);
-                }
-            }
-        }
-    }
-
-    private void EnemyCollisionCallback(GameObject enemy) {
-        enemy.GetComponent<Animator>().SetTrigger("TakeDamage");
-        enemy.GetComponent<AudioSource>().Play();
-        Destroy(enemy);
-    }
-    #endregion
-
 }

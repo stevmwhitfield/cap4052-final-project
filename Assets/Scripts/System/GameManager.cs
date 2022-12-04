@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour {
         }
 
         playerSettings.sensitivity = 0.3f;
-
+        Debug.Log("GameManager");
         overlayCanvas.SetActive(false);
     }
     #endregion

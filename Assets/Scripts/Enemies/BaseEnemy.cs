@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 public class BaseEnemy : MonoBehaviour {
 
@@ -9,13 +10,22 @@ public class BaseEnemy : MonoBehaviour {
     private const float VERTICAL_LIMIT = 1.8f;
 
     [SerializeField] private AudioClip attackSfx;
+    [SerializeField] private AudioClip deathSfx;
+    
+    [SerializeField] private Transform attackPoint;
+
+    [SerializeField] private LayerMask playerLayer;
+
+    private Animator animator;
+
     private AudioSource audioSource;
+
+    private CapsuleCollider hurtbox;
+
+    private NavMeshAgent agent;
 
     private Transform playerTransform;
 
-    private Animator animator;
-    private CapsuleCollider hurtbox;
-    private NavMeshAgent agent;
     private Vector3 spawnLocation;
 
     private float gainAggroRange = 10f;
@@ -69,7 +79,7 @@ public class BaseEnemy : MonoBehaviour {
             MoveTowardsPlayer();
         }
 
-        if (canAttack) {
+        if (canAttack && !isAttacking) {
             Attack();
         }
     }
@@ -107,12 +117,19 @@ public class BaseEnemy : MonoBehaviour {
     }
 
     private IEnumerator AttackBuffer() {
+        isAttacking = true;
+        canAttack = false;
         yield return new WaitForSeconds(2.0f);
+        isAttacking = false;
         canAttack = true;
     }
 
+    private IEnumerator DeathBuffer() {
+        yield return new WaitForSeconds(5.0f);
+        //Destroy(gameObject);
+    }
+
     private void Attack() {
-        canAttack = false;
         animator.SetTrigger("Attack");
         if (attackSfx != null) {
             audioSource.PlayOneShot(attackSfx);
@@ -120,6 +137,27 @@ public class BaseEnemy : MonoBehaviour {
         else {
             Debug.LogWarning("Warning! " + name + ": is missing attackSfx.");
         }
+        Collider[] playersHit = Physics.OverlapSphere(attackPoint.position, attackRange, playerLayer);
+
+        foreach(Collider player in playersHit) {
+            player.gameObject.GetComponent<Player>().TakeDamage();
+        }
+
+        StartCoroutine(AttackBuffer());
+    }
+
+    private void OnDrawGizmosSelected() {
+        Gizmos.DrawWireSphere(attackPoint.position, 1f);
+    }
+
+    public void Die() {
+        Debug.Log(name + " died");
+        animator.SetBool("IsDead", true);
+        if (deathSfx != null) {
+            audioSource.PlayOneShot(deathSfx);
+        }
+        enabled = false;
+        StartCoroutine(DeathBuffer());
     }
     #endregion
 
@@ -129,7 +167,14 @@ public class BaseEnemy : MonoBehaviour {
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(lookDirection.x, 0f, lookDirection.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        agent.SetDestination(playerTransform.position);
+        float targetDistance = Vector3.Distance(playerTransform.position, transform.position);
+        if (targetDistance < 2.0f) {
+            agent.isStopped = true;
+        }
+        else {
+            agent.isStopped = false;
+            agent.SetDestination(playerTransform.position);
+        }
     }
 
     private void MoveTowardsSpawn() {
@@ -140,6 +185,7 @@ public class BaseEnemy : MonoBehaviour {
 
     #region CollisionMethods
     private void OnCollisionEnter(Collision collision) {
+        Debug.Log("collision");
         if (isAttacking && collision.gameObject.CompareTag("Player")) {
             collision.gameObject.GetComponent<Player>().TakeDamage();
         }
