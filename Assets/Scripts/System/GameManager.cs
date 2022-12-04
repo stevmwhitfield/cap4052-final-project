@@ -1,14 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
     #region Fields
-    public static List<LevelData> levelData = new List<LevelData>();
+    public static List<LevelData> levelData;
     [SerializeField] private LevelData levelDataRuins;
     [SerializeField] private LevelData levelDataHills;
     [SerializeField] private LevelData levelDataOutpost;
@@ -21,7 +18,7 @@ public class GameManager : MonoBehaviour {
 
     private static int activeSceneIndex;
 
-    
+    private GameObject overlayCanvas;
 
     //public static bool isPaused = false;
     //public static bool isBlastUnlocked = false;
@@ -32,20 +29,21 @@ public class GameManager : MonoBehaviour {
     private void Awake() {
         activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
-        playerSettings = new Settings();
+        overlayCanvas = GameObject.FindGameObjectWithTag("Overlay");
 
-        levelData.Add(levelDataRuins);
-        levelData.Add(levelDataHills);
-        levelData.Add(levelDataOutpost);
+        playerSettings = new Settings();
     }
 
     private void Start() {
-        
+        levelData = new List<LevelData> { levelDataRuins, levelDataHills, levelDataOutpost };
+
         if (activeSceneIndex > 0) {
             ActiveLevel = levelData[activeSceneIndex - 1];
         }
 
         playerSettings.sensitivity = 0.3f;
+
+        overlayCanvas.SetActive(false);
     }
     #endregion
 

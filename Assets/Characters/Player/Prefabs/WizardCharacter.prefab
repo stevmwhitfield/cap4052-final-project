@@ -778,6 +778,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b8043bb750bd164cbad603331035a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  JUMP_FORCE: 12
   mainCamera: {fileID: 0}
   cameraTarget: {fileID: 3755579113321096313}
   basicAttackSfx: {fileID: 8300000, guid: 4f0f806e357425c4d88afd77649f83e7, type: 3}
@@ -2054,7 +2055,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1587177246678718}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 15
   m_Height: 250

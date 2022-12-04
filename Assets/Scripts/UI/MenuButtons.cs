@@ -9,6 +9,7 @@ public class MenuButtons : MonoBehaviour {
     [SerializeField] private GameObject defaultScreen;
     [SerializeField] private GameObject settingsScreen;
     [SerializeField] private GameObject creditsScreen;
+
     #endregion
 
     #region MenuMethods

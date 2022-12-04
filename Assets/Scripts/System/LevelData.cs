@@ -24,12 +24,12 @@ public class LevelData : MonoBehaviour {
     private List<Vector3> enemySpawnLocations;  // might delete
     private List<Vector3> itemSpawnLocations;   // might delete
 
-    private GameObject overlayCanvas;
     private TextMeshProUGUI artifactsCollectedText;
     private TextMeshProUGUI crystalsCollectedText;
     private TextMeshProUGUI levelProgressText;
 
     private GameObject winCanvas;
+    private GameObject overlayCanvas;
 
     public float CompletionProgress { get; set; }
 
@@ -40,6 +40,8 @@ public class LevelData : MonoBehaviour {
 
     #region UnityMethods
     private void Awake() {
+        overlayCanvas = GameObject.FindGameObjectWithTag("Overlay");
+
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) {
             throw new System.Exception("Error! " + name + ": missing AudioSource.");
@@ -49,7 +51,7 @@ public class LevelData : MonoBehaviour {
         if (winCanvas == null)
             throw new System.Exception("missing winCanvas");
 
-        overlayCanvas = GameObject.FindGameObjectWithTag("Overlay");
+
         artifactsCollectedText = GameObject.FindGameObjectWithTag("ArtifactsCollectedText").GetComponent<TextMeshProUGUI>();
         crystalsCollectedText = GameObject.FindGameObjectWithTag("CrystalsCollectedText").GetComponent<TextMeshProUGUI>();
         levelProgressText = GameObject.FindGameObjectWithTag("LevelProgressText").GetComponent<TextMeshProUGUI>();
@@ -57,7 +59,6 @@ public class LevelData : MonoBehaviour {
 
     private void Start() {
         CompletionProgress = 0f;
-        overlayCanvas.SetActive(true);
         winCanvas.SetActive(false);
     }
     #endregion
@@ -87,6 +88,10 @@ public class LevelData : MonoBehaviour {
     public void ActivateRune() {
         isRuneActivated = 1;
         UpdateLevelProgress();
+    }
+
+    public void ToggleOverlay(bool isActive) {
+        overlayCanvas.SetActive(isActive);
     }
     #endregion
 }

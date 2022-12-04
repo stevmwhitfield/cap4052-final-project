@@ -11,8 +11,8 @@ public class Player : MonoBehaviour {
 
     private const float WALK_SPEED = 7.0f;
     private const float RUN_SPEED = 11.0f;
-    private const float ACCELERATION = 20.0f;
-    private const float JUMP_FORCE = 6.0f;
+    private const float ACCELERATION = 50.0f;
+    public float JUMP_FORCE = 12.0f;
 
     [SerializeField] private Camera mainCamera;
 
