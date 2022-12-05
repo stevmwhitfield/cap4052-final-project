@@ -16,11 +16,10 @@ public class GameManager : MonoBehaviour {
 
     public static float completionProgress = 0f;
 
-    private static int activeSceneIndex;
+    public static int activeSceneIndex;
 
     private GameObject overlayCanvas;
 
-    //public static bool isPaused = false;
     //public static bool isBlastUnlocked = false;
     //public static bool isBarrierUnlocked = false;
     #endregion
@@ -42,7 +41,7 @@ public class GameManager : MonoBehaviour {
         }
 
         playerSettings.sensitivity = 0.3f;
-        Debug.Log("GameManager");
+
         overlayCanvas.SetActive(false);
     }
     #endregion

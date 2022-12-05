@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
 
 
     #region Fields
-    private const int MAX_HP = 5;
+    private const int MAX_HP = 10;
 
     private const float WALK_SPEED = 7.0f;
     private const float RUN_SPEED = 11.0f;

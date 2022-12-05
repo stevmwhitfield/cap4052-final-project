@@ -786,7 +786,7 @@ MonoBehaviour:
   basicAttackSfx: {fileID: 8300000, guid: 4f0f806e357425c4d88afd77649f83e7, type: 3}
   hurtSfx: {fileID: 8300000, guid: dbdf8350563cfb742a8bf526fdb09bf6, type: 3}
   deathSfx: {fileID: 8300000, guid: ddd5cb4680848c342bd0b9f12047f041, type: 3}
-  hitbox: {fileID: 579761264376975444}
+  hitbox: {fileID: 0}
   enemyLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -2040,7 +2040,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4697918775314360}
-  - component: {fileID: 579761264376975444}
   m_Layer: 6
   m_Name: Weapon
   m_TagString: Untagged
@@ -2064,20 +2063,6 @@ Transform:
   m_Father: {fileID: 4766417282772594}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &579761264376975444
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587177246678718}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 15
-  m_Height: 250
-  m_Direction: 1
-  m_Center: {x: 0, y: -20, z: 0}
 --- !u!1 &1609667907371112
 GameObject:
   m_ObjectHideFlags: 0

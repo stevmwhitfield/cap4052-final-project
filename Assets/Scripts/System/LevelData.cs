@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelData : MonoBehaviour {
 
@@ -69,8 +70,24 @@ public class LevelData : MonoBehaviour {
         levelProgressText.text = $"{CompletionProgress * 100}%";
         if (CompletionProgress == 1) {
             winCanvas.SetActive(true);
+            StartCoroutine(LoadNextLevel());
         }
         GameManager.UpdateGameProgress();
+    }
+
+    private IEnumerator LoadNextLevel() {
+        yield return new WaitForSeconds(5.0f);
+        winCanvas.SetActive(false);
+        artifactsCollectedText.text = "Stars: 0/3";
+        crystalsCollectedText.text = "Crystals: 0/200";
+        levelProgressText.text = "0%";
+        if (levelName == "Ruins") {
+            LevelManager.LoadLevel(2);
+        }
+        if (levelName == "Hills") {
+            overlayCanvas.SetActive(false);
+            SceneManager.LoadScene(0);
+        }
     }
 
     public void UpdateArtifacts() {

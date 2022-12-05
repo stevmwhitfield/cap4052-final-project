@@ -126,7 +126,7 @@ public class BaseEnemy : MonoBehaviour {
 
     private IEnumerator DeathBuffer() {
         yield return new WaitForSeconds(5.0f);
-        //Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     private void Attack() {
@@ -140,24 +140,25 @@ public class BaseEnemy : MonoBehaviour {
         Collider[] playersHit = Physics.OverlapSphere(attackPoint.position, attackRange, playerLayer);
 
         foreach(Collider player in playersHit) {
-            player.gameObject.GetComponent<Player>().TakeDamage();
+            if (player.gameObject.GetComponent<Player>() != null) {
+                player.gameObject.GetComponent<Player>().TakeDamage();
+            }
+            else {
+                Debug.Log("Enemy hit: " + player.name);
+            }
         }
 
         StartCoroutine(AttackBuffer());
     }
 
-    private void OnDrawGizmosSelected() {
-        Gizmos.DrawWireSphere(attackPoint.position, 1f);
-    }
-
     public void Die() {
-        Debug.Log(name + " died");
         animator.SetBool("IsDead", true);
         if (deathSfx != null) {
             audioSource.PlayOneShot(deathSfx);
         }
+        hurtbox.enabled = false;
         enabled = false;
-        StartCoroutine(DeathBuffer());
+        //StartCoroutine(DeathBuffer());
     }
     #endregion
 
@@ -185,7 +186,6 @@ public class BaseEnemy : MonoBehaviour {
 
     #region CollisionMethods
     private void OnCollisionEnter(Collision collision) {
-        Debug.Log("collision");
         if (isAttacking && collision.gameObject.CompareTag("Player")) {
             collision.gameObject.GetComponent<Player>().TakeDamage();
         }
